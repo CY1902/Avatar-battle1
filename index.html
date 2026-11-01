@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVATAR BATTLE</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:18px;
+ background:#101322;color:white;
+ font-family:Arial,sans-serif;
+}
+main{max-width:650px;margin:auto}
+h1{text-align:center;color:#ffc34d;font-size:34px}
+.sub{text-align:center;color:#aab1ca}
+.card{
+ background:#202740;
+ border:1px solid #394563;
+ border-radius:15px;
+ padding:18px;margin:15px 0;
+}
+h2{color:#ffc34d}
+input,button{
+ width:100%;padding:14px;
+ border-radius:9px;border:0;
+ font-size:16px;margin:7px 0;
+}
+input{
+ background:#101727;color:white;
+ border:1px solid #64708d;
+}
+button{
+ background:#ffc34d;color:#171717;
+ font-weight:bold;cursor:pointer;
+}
+.score{
+ display:flex;justify-content:space-around;
+ text-align:center;font-size:21px;
+}
+.result{white-space:pre-line;line-height:1.8}
+small{color:#aab1ca}
+</style>
+</head>
+
+<body>
+<main>
+
+<h1>⚔ AVATAR BATTLE</h1>
+<p class="sub">NEW SEASON · 9 ROUND CHAMPIONSHIP</p>
+
+<div class="card score">
+ <div>USER<br><b id="us">0</b></div>
+ <div>ROUND<br><b id="round">1 / 9</b></div>
+ <div>AI<br><b id="ais">0</b></div>
+</div>
+
+<div class="card">
+ <h2 id="keyword">ROUND 1 · 맨손 격투</h2>
+ <p id="field">전장: 프로 복싱 링</p>
+ <p id="rule">무기 없이 맨손으로 승부한다.</p>
+</div>
+
+<div class="card">
+ <h2>👤 USER 아바타</h2>
+ <input id="avatar" placeholder="아바타 이름 입력">
+ <input id="category" placeholder="직업 또는 특징 입력">
+ <button onclick="battle()">⚔ 대결 시작!</button>
+</div>
+
+<div class="card">
+ <h2>🏆 전투 결과</h2>
+ <div id="result" class="result">
+ 아바타를 입력하고 대결을 시작하세요!
+ </div>
+</div>
+
+<div class="card">
+ <h2>📜 시즌 전적</h2>
+ <div id="history">아직 대결 기록이 없습니다.</div>
+ <button onclick="resetGame()">시즌 새로 시작하기</button>
+</div>
+
+<small>
+※ 브라우저에서 실행되는 간단한 전투 시뮬레이션입니다.
+</small>
+
+</main>
+
+<script>
+
+const rounds=[
+ ["맨손 격투","프로 복싱 링","무기 없이 맨손으로 승부한다."],
+ ["침투 작전","야간 군사 연구시설","잠입과 경계 회피 능력을 겨룬다."],
+ ["생존 경쟁","열대 무인도","식량, 물, 체력 관리가 중요하다."],
+ ["추격전","대도시 야간 도로","추적과 도주 능력을 겨룬다."],
+ ["전략 대결","산악 요새","지휘와 전술을 겨룬다."],
+ ["잠수 작전","침몰 선박","수중 생존과 임무 수행 능력을 겨룬다."],
+ ["호위 임무","혼잡한 도심","보호 대상의 안전이 목표다."],
+ ["극한 생존","혹한의 설원","추위와 자원 부족을 극복한다."],
+ ["최종 결전","폐쇄된 경기장","모든 능력을 동원해 승부한다."]
+];
+
+const aiPool=[
+ "인디아나 존스",
+ "어니스트 섀클턴",
+ "해리엇 터브먼",
+ "이선 헌트",
+ "알렉산더 대왕",
+ "브루스 리",
+ "셜록 홈즈",
+ "맥가이버",
+ "잔다르크",
+ "에이다 러브레이스",
+ "어니스트 헤밍웨이",
+ "마르코 폴로"
+];
+
+let currentRound=0;
+let userScore=0;
+let aiScore=0;
+let usedAvatars=[];
+let history=[];
+
+function battle(){
+
+ if(currentRound>=9){
+  alert("시즌이 종료되었습니다!");
+  return;
+ }
+
+ let name=document.getElementById("avatar").value.trim();
+ let category=document.getElementById("category").value.trim();
+
+ if(!name){
+  alert("아바타 이름을 입력하세요.");
+  return;
+ }
+
+ if(usedAvatars.includes(name)){
+  alert("이미 사용한 아바타입니다. 다른 아바타를 선택하세요.");
+  return;
+ }
+
+ let available=aiPool.filter(
+  x=>!usedAvatars.includes(x)
+ );
+
+ if(available.length===0){
+  alert("AI 아바타가 부족합니다.");
+  return;
+ }
+
+ let enemy=available[
+  Math.floor(Math.random()*available.length)
+ ];
+
+ let userPower=Math.floor(Math.random()*100)+1;
+ let aiPower=Math.floor(Math.random()*100)+1;
+
+ let outcome="";
+
+ if(userPower>aiPower){
+  userScore+=1;
+  outcome="USER 승리!";
+ }else if(userPower<aiPower){
+  aiScore+=1;
+  outcome="AI 승리!";
+ }else{
+  userScore+=0.5;
+  aiScore+=0.5;
+  outcome="무승부!";
+ }
+
+ usedAvatars.push(name);
+ usedAvatars.push(enemy);
+
+ let result=
+ "ROUND "+(currentRound+1)+"\n\n"+
+ "USER: "+name+
+ (category?" ("+category+")":"")+"\n"+
+ "AI: "+enemy+"\n\n"+
+ "USER 전투 판정: "+userPower+"\n"+
+ "AI 전투 판정: "+aiPower+"\n\n"+
+ "🏆 "+outcome;
+
+ document.getElementById("result").textContent=result;
+
+ history.push(
+  "ROUND "+(currentRound+1)+
+  " | "+name+" vs "+enemy+
+  " | "+outcome
+ );
+
+ currentRound++;
+
+ document.getElementById("us").textContent=userScore;
+ document.getElementById("ais").textContent=aiScore;
+
+ document.getElementById("history").textContent=
+  history.join("\n");
+
+ if(currentRound<9){
+  document.getElementById("round").textContent=
+   (currentRound+1)+" / 9";
+
+  document.getElementById("keyword").textContent=
+   "ROUND "+(currentRound+1)+" · "+rounds[currentRound][0];
+
+  document.getElementById("field").textContent=
+   "전장: "+rounds[currentRound][1];
+
+  document.getElementById("rule").textContent=
+   rounds[currentRound][2];
+
+ }else{
+  document.getElementById("round").textContent="종료";
+  document.getElementById("keyword").textContent=
+   "🏆 SEASON COMPLETE";
+  document.getElementById("field").textContent=
+   "9라운드 종료!";
+  document.getElementById("rule").textContent=
+   "최종 점수를 확인하세요.";
+
+  document.getElementById("result").textContent+=
+   "\n\n최종 USER 점수: "+userScore+
+   "\n최종 AI 점수: "+aiScore+
+   "\n\n시즌 종료!";
+ }
+}
+
+function resetGame(){
+
+ if(!confirm("정말 새 시즌을 시작할까요?")){
+  return;
+ }
+
+ currentRound=0;
+ userScore=0;
+ aiScore=0;
+
+ // 새 시즌이므로 사용 아바타 기록도 비움
+ usedAvatars=[];
+ history=[];
+
+ document.getElementById("us").textContent="0";
+ document.getElementById("ais").textContent="0";
+ document.getElementById("round").textContent="1 / 9";
+
+ document.getElementById("keyword").textContent=
+  "ROUND 1 · "+rounds[0][0];
+
+ document.getElementById("field").textContent=
+  "전장: "+rounds[0][1];
+
+ document.getElementById("rule").textContent=
+  rounds[0][2];
+
+ document.getElementById("result").textContent=
+  "새 시즌이 시작되었습니다!";
+
+ document.getElementById("history").textContent=
+  "아직 대결 기록이 없습니다.";
+
+ document.getElementById("avatar").value="";
+ document.getElementById("category").value="";
+}
+
+</script>
+</body>
+</html>
